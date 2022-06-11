@@ -1,7 +1,8 @@
-import {useState} from "react";
+import {useMemo, useState} from "react";
 import PostList from "./components/PostList";
 import PostForm from "./components/PostForm";
 import MySelect from "./components/UI/select/MySelect";
+import MyInput from "./components/UI/input/MyInput";
 import './styles/App.css'
 
 export default function App() {
@@ -10,7 +11,22 @@ export default function App() {
         {id: 2, title: 'ccc', body: 'cccc'},
         {id: 3, title: 'bbbb', body: 'aaaaaa'}
     ]);
-    const [selectedSort, setSelectedSort] = useState();
+    const [selectedSort, setSelectedSort] = useState('');
+    const [searchQuery, setSearchQuery] = useState('');
+
+    const sortedPosts = useMemo(() => {
+        // console.log('отработала функция сортировки');
+        if (selectedSort) {
+            return [...posts].sort((a, b) => a[selectedSort].localeCompare(b[selectedSort]));
+        }
+        return posts;
+    }, [selectedSort, posts]);
+
+    const sortedAndSearchedPosts = useMemo(() => {
+        return sortedPosts.filter(post =>
+            post.title.toLowerCase().includes(searchQuery.toLowerCase()));
+    }, [searchQuery, sortedPosts]);
+
     const createPost = (newPost) => {
         setPosts([...posts, newPost]);
     }
@@ -21,7 +37,6 @@ export default function App() {
 
     const sortPosts = (sort) => {
         setSelectedSort(sort);
-        setPosts([...posts].sort((a, b) => a[sort].localeCompare(b[sort])))
     }
 
     return (
@@ -29,6 +44,11 @@ export default function App() {
             <PostForm create={createPost}/>
             <hr style={{margin: '15px 0'}}/>
             <div>
+                <MyInput
+                    value={searchQuery}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    placeholder="Поиск...">
+                </MyInput>
                 <MySelect
                     value={selectedSort}
                     onChange={sortPosts}
@@ -39,10 +59,10 @@ export default function App() {
                     ]}
                 />
             </div>
-            {posts.length !== 0
+            {sortedAndSearchedPosts.length > 0
                 ?
                 <PostList remove={removePost}
-                          posts={posts}
+                          posts={sortedAndSearchedPosts}
                           title="Посты про JS"
                 />
                 :
