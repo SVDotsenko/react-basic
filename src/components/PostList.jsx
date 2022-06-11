@@ -2,7 +2,7 @@ import React from 'react';
 import PostItem from "./PostItem";
 
 const PostList = ({posts, title, remove}) => {
-    return (
+    return posts.length ? (
         <div>
             <h1 style={{textAlign: 'center'}}>{title}</h1>
             {posts.map((post, index) =>
@@ -13,7 +13,7 @@ const PostList = ({posts, title, remove}) => {
                 />
             )}
         </div>
-    );
+    ) : (<h1 style={{textAlign: 'center'}}>Посты не были найдены</h1>);
 };
 
 export default PostList;
